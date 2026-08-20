@@ -2,7 +2,7 @@
 
 - [ ] 1.1 Scaffold a Vite React + TypeScript app in the repo root and verify `npm run dev` serves the starter page
 - [ ] 1.2 Add Tailwind CSS and initialize shadcn/ui; verify a shadcn Button renders with correct styling
-- [ ] 1.3 Add dependencies `@supabase/supabase-js`, `ngeohash`, `framer-motion`, and `vitest` (dev); verify `npm install` succeeds
+- [ ] 1.3 Add dependencies `@supabase/supabase-js`, `ngeohash`, `framer-motion`, and `vitest` (dev), and add a `test` script running `vitest`; verify `npm install` succeeds
 - [ ] 1.4 Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to `.env.local` (git-ignored) and a committed `.env.example` with placeholder names; verify the values load via `import.meta.env`
 
 ## 2. Realtime + Identity + Protocol Foundations
@@ -24,11 +24,11 @@
 - [ ] 4.2 Request browser geolocation, handle denial with an error message, and join `ping:geo:{cell}` sending only the derived cell (never raw coordinates); verify two clients with mocked nearby coordinates share a session and no raw coords are transmitted
 - [ ] 4.3 Add the radius selector (~150m / ~1km) with an "approximate" hint and verify it changes the joined cell
 
-## 5. Ping / Pong
+## 5. Ping
 
-- [ ] 5.1 Implement the emoji palette picker (fixed 3–6 emojis) plus tap-to-ping on the canvas (hit area excludes controls): broadcast a `PingEvent` carrying the selected palette emoji, with throttle, and show a "no one here" cue instead of broadcasting when presence is empty; verify rapid taps are throttled
+- [ ] 5.1 Implement the emoji palette picker (fixed 3–6 emojis) plus tap-to-ping on the canvas (hit area excludes controls): broadcast a `PingEvent` carrying the selected palette emoji, with throttle; show a "sent to N" confirmation from the presence count, or a "no one here" cue instead of broadcasting when presence is empty; verify rapid taps are throttled
 - [ ] 5.2 Implement ping reception: validate the payload, filter out own `fromId`, render a floating emoji animation (framer-motion), and render a static indicator under `prefers-reduced-motion`; verify a ping from tab B animates on tab A only
-- [ ] 5.3 Implement auto-pong: on receiving a valid ping, broadcast `pong` to the sender; verify the sender shows a "delivered" acknowledgement and a missing pong reads as unknown
+- [ ] 5.3 Verify no acknowledgement broadcasts exist: a received ping renders the emoji only (no `pong`); the sender's "sent to N" is derived from presence and updates as participants join/leave
 - [ ] 5.4 Add presence badge plus connection-status indicator (connected / alone / reconnecting); verify it updates on join/leave and on a dropped connection
 
 ## 6. Polish + Tests

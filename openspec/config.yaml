@@ -14,7 +14,7 @@ context: |
   Pings are ephemeral (no persistence, no Postgres writes) for the MVP.
   No authentication; identity is a client-generated UUID plus an optional nickname.
   Hosting: Vercel (free). Secrets/config via Vite `VITE_` env vars.
-  Domain: a cute "ping your friend, see their pong" realtime app.
+  Domain: a cute "ping your friends, share emojis in real time" realtime app.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

@@ -1,6 +1,6 @@
 ## Purpose
 
-Lets users send cute "ping" messages to each other in real time and see incoming pings rendered as floating kawaii animations, with an automatic "pong" delivery acknowledgement.
+Lets users send cute "ping" messages to everyone in a session in real time and see incoming pings rendered as floating kawaii animations, with a presence-derived "sent to N" confirmation.
 
 ## ADDED Requirements
 
@@ -27,11 +27,11 @@ The system SHALL allow a user to send a cute ping to the other participants in t
 - **THEN** the system shows a cue that no one is here to receive the ping and does not broadcast
 
 ### Requirement: Validate incoming pings
-The system SHALL accept only well-formed ping/pong messages and ignore anything else.
+The system SHALL accept only well-formed ping messages and ignore anything else.
 
 #### Scenario: Valid message
-- **WHEN** a message with a recognized type, a known sender id, a timestamp, and an emoji from the fixed palette is received
-- **THEN** the system processes it as a ping or pong
+- **WHEN** a message with a recognized type, a non-empty sender id, a timestamp, and an emoji from the fixed palette is received
+- **THEN** the system processes it as a ping
 
 #### Scenario: Invalid message
 - **WHEN** a message with an unrecognized shape, type, or an emoji outside the palette is received
@@ -44,16 +44,16 @@ The system SHALL display a validated incoming ping to the receiving user as a fl
 - **WHEN** a valid ping is received from another participant
 - **THEN** the system renders a floating emoji animation that is visible on the receiving user's screen
 
-### Requirement: Automatic pong delivery acknowledgement
-The system SHALL automatically send a pong back to the sender when a ping is received, and the sender SHALL treat the ping as delivered rather than seen.
+### Requirement: Presence-based delivery confirmation
+The system SHALL confirm how many participants a ping was sent to, using the current presence count rather than per-recipient acknowledgements.
 
-#### Scenario: Auto-pong on receive
-- **WHEN** a user receives a valid ping from another participant
-- **THEN** the system sends a pong back to that sender, and the sender shows a "delivered" acknowledgement
+#### Scenario: Sent to peers
+- **WHEN** a user sends a ping while one or more other participants are present
+- **THEN** the system broadcasts the ping and shows a confirmation of how many peers it was sent to (e.g. "sent to N")
 
-#### Scenario: Missing pong
-- **WHEN** a sender does not receive a pong (for example, the receiver's tab is backgrounded)
-- **THEN** the sender treats delivery as unknown rather than unseen
+#### Scenario: No delivery guarantee
+- **WHEN** the sender's count is derived from presence
+- **THEN** the system treats the count as an approximate indicator of who was present at send time, not proof that each participant rendered the ping
 
 ### Requirement: Own pings are not echoed
 The system SHALL NOT deliver a user's own ping back to them as if it came from another participant.

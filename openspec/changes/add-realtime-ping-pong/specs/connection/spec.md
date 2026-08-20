@@ -5,7 +5,7 @@ Lets two or more people establish a realtime session with each other, either by 
 ## ADDED Requirements
 
 ### Requirement: Shared session code matching
-The system SHALL allow users to connect by creating or entering a shared session code. A code is a reusable session name, not a single-use token: anyone who knows the code may join or rejoin while the session exists.
+The system SHALL allow users to connect by creating or entering a shared session code. A code is a reusable session name, not a single-use token: anyone who knows the code may join at any time. There is no persisted session state — the channel simply empties when the last participant leaves.
 
 #### Scenario: Create a code
 - **WHEN** a user opens the app and chooses the code matching mode
@@ -17,7 +17,7 @@ The system SHALL allow users to connect by creating or entering a shared session
 
 #### Scenario: Code is reusable
 - **WHEN** a participant leaves and later re-enters the same code
-- **THEN** the system reconnects them to the same session (the code remains valid while any participant is connected)
+- **THEN** the system joins the same channel name again (a code is a stable session name; the channel is empty once the last participant leaves)
 
 ### Requirement: Radius matching
 The system SHALL allow a user to connect with everyone whose device is within an approximate radius (~150m or ~1km) of their own location, derived from a geohash cell.
@@ -66,6 +66,10 @@ The system SHALL identify participants without authentication, using an optional
 #### Scenario: Nickname sanitization
 - **WHEN** a user provides a nickname that exceeds the maximum length or contains control characters
 - **THEN** the system clamps the length and strips control characters before displaying it
+
+#### Scenario: Sanitize received nicknames
+- **WHEN** the presence list renders a nickname received from another participant
+- **THEN** the system clamps its length and strips control characters before displaying it (rendered only as text, never as HTML)
 
 ### Requirement: Connection status
 The system SHALL show whether the realtime connection is live and whether other participants are present.

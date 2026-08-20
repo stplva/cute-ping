@@ -7,7 +7,7 @@ Greenfield project. Frontend-only app hosted on Vercel; Supabase Realtime is use
 **Goals:**
 - A free, zero-backend realtime "ping a friend" app that two browsers can use today.
 - Two matching modes sharing the same session machinery: shared session code and radius (geohash).
-- One transport abstraction so "send ping / receive pong / see presence" works identically in both modes.
+- One transport abstraction so "send ping / see presence" works identically in both modes.
 - A single, versioned message protocol so clients agree on payload shape and can evolve it.
 
 **Non-Goals:**
@@ -19,7 +19,7 @@ Greenfield project. Frontend-only app hosted on Vercel; Supabase Realtime is use
 ## Decisions
 
 ### 1. Supabase Realtime (broadcast + presence) instead of self-hosted WebSockets
-- **Decision**: use `@supabase/supabase-js` channels with `broadcast` (for pings/pongs) and `presence` (for "who's here").
+- **Decision**: use `@supabase/supabase-js` channels with `broadcast` (for pings) and `presence` (for "who's here").
 - **Why**: Vercel serverless can't hold long-lived sockets, so a custom WS server would need a second always-on host. Supabase runs the sockets, handles fan-out/reconnect, and gives presence for free.
 - **Alternatives considered**: raw WebSockets on a separate host (more ops); Ably (equally good, but Supabase bundles presence + room to grow into Postgres history); Pusher (tight free tier, effectively EOL).
 
@@ -35,7 +35,7 @@ Greenfield project. Frontend-only app hosted on Vercel; Supabase Realtime is use
 - **Alternatives considered**: server-side distance queries (needs backend + DB); H3/S2 hex cells (more accurate but heavier and overkill for MVP).
 
 ### 4. Message protocol (versioned TS type)
-- **Decision**: define a shared type `PingEvent = { v: 1, type: 'ping' | 'pong', fromId: string, emoji: string, ts: number }` with a `v` version field for forward compatibility; every broadcast conforms to it.
+- **Decision**: define a shared type `PingEvent = { v: 1, type: 'ping', fromId: string, emoji: string, ts: number }` with a `v` version field for forward compatibility; every broadcast conforms to it. `type` is a single value for now, kept for forward compatibility with future event kinds.
 - **Why**: it is the only interface in a zero-backend app; a version field lets the payload shape evolve without breaking older clients.
 
 ### 5. Receiver-side validation + emoji palette (picker = allowlist)
@@ -45,11 +45,12 @@ Greenfield project. Frontend-only app hosted on Vercel; Supabase Realtime is use
 
 ### 6. Anonymous identity (no auth)
 - **Decision**: on first visit generate `crypto.randomUUID()`, persist in `localStorage`, pair with a random kawaii avatar emoji and optional user-supplied nickname; include these in the presence payload. Fall back to an in-memory identity when `localStorage` is unavailable (e.g. private mode).
+- **Note**: `crypto.randomUUID()` requires a secure context (HTTPS or localhost); Vercel and local dev both satisfy this.
 - **Why**: zero friction for a pet project; the anon key is designed to be public, so no secret management.
 
-### 7. Pong as an automatic "delivered" ack
-- **Decision**: on receiving a valid `ping`, the receiver broadcasts a `pong` back to the sender; the sender renders a "delivered" acknowledgement (not "seen"). Senders filter by `fromId` to avoid echoing their own pings; a missing pong is treated as "unknown," not "unseen."
-- **Note**: `fromId` is forgeable without auth, so "delivered" is best-effort only (see Risks).
+### 7. Delivery via presence count (no pong)
+- **Decision**: there is no `pong`/ack broadcast. Pings are fire-and-forget to the channel; on send, the sender shows a "sent to N" confirmation derived from the current presence count. Receivers render the floating emoji; a sender filters by `fromId` to avoid echoing its own pings.
+- **Why**: with 3+ participants a per-ping ack can't be correlated to a specific ping (broadcast has no server routing) and generates O(N²) broadcasts. Presence is an honest, useful proxy — "N people are here" — and removes both the amplification vector and the "delivered vs seen" ambiguity entirely.
 
 ### 8. Client-side throttle + reduced motion
 - **Decision**: debounce/throttle ping sends (bounded pings/sec) and cap concurrent on-screen animations; honor `prefers-reduced-motion` with a static indicator. The ping hit area is the canvas only, excluding controls, to avoid accidental taps while scrolling or using the UI.
@@ -64,11 +65,11 @@ Greenfield project. Frontend-only app hosted on Vercel; Supabase Realtime is use
 
 ## Risks / Trade-offs
 
-- **[Unauthenticated = anyone can listen/spoof]** With a public anon key and no auth, any client can join any `ping:code:{CODE}` or `ping:geo:{cell}` channel and read or spoof everything. This is inherent to the design and is an accepted tradeoff for a pet project. → Mitigations: high-entropy codes (code mode) and receiver-side validation/allowlist (limits spoofed payloads to valid-looking pings). `fromId` remains forgeable, so "delivered" acks are best-effort only.
+- **[Unauthenticated = anyone can listen/spoof]** With a public anon key and no auth, any client can join any `ping:code:{CODE}` or `ping:geo:{cell}` channel and read or spoof everything. This is inherent to the design and is an accepted tradeoff for a pet project. → Mitigations: high-entropy codes (code mode) and receiver-side validation/allowlist (limits spoofed payloads to valid-looking pings). `fromId` remains forgeable, so "sent to N" counts and sender attribution are best-effort only.
 - **[Channel enumerability]** Geohash cells are enumerable (6-char ≈ 2.4M, 7-char ≈ 1.4B), so a determined lurker can sweep cells near a target location. → Accepted; radius mode is inherently semi-public, and raw coordinates are never exposed.
 - **[Neighbor-cell edge effect]** Two people physically meters apart but in adjacent geohash cells won't match. → Accept for MVP; documented follow-up is subscribing to the 8 surrounding cells (pure client change, no spec impact).
 - **[Cell size vs. radius mismatch]** A 7-char cell (~153m) can over-match people up to ~2× the selected radius. → Labeled "approximate" in the UI; coarser precision keeps it simple.
-- **[Geolocation reliability]** Browser geolocation can be imprecise or denied. → Handle denial gracefully (spec `connection`); allow manual coordinate override in dev for testing.
+- **[Geolocation reliability]** Browser geolocation can be imprecise or denied, and requires a secure context (HTTPS). → Handle denial gracefully (spec `connection`); allow manual coordinate override in dev for testing.
 - **[Offline/reconnect silently drops pings]** Supabase auto-reconnects, but without a status indicator pings fail silently during a disconnect. → Add a connection-status indicator (spec `connection`).
 - **[Presence without auth]** Supabase presence keys off a client identity; multiple tabs/devices from the same user appear as separate entries. → Acceptable for MVP.
 - **[Supabase free-tier limits]** Hundreds of concurrent connections; irrelevant for a personal app.
