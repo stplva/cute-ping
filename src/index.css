@@ -155,3 +155,16 @@
 .animate-blob-fast {
   animation: blob-float 9s ease-in-out infinite;
 }
+
+@keyframes gradient-drift {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(16deg);
+  }
+}
+
+.animate-gradient {
+  animation: gradient-drift 9s ease-in-out infinite;
+}

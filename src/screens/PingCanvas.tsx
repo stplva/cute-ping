@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { Button } from '@/components/ui/button'
+import { Kittens } from '@/components/Kittens'
 import { PresenceIndicator } from '@/components/PresenceIndicator'
 
 import { parseChannelName } from '@/lib/channel-name'
@@ -69,6 +70,7 @@ export function PingCanvas({
   const [floating, setFloating] = useState<FloatingItem[]>([])
   const [notice, setNotice] = useState<string | null>(null)
   const [hasTapped, setHasTapped] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
   const reduced = usePrefersReducedMotion()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const idRef = useRef(0)
@@ -121,6 +123,7 @@ export function PingCanvas({
 
   const handleCanvasTap = (event: React.MouseEvent<HTMLDivElement>) => {
     setHasTapped(true)
+    setTapCount((count) => count + 1)
     const rect = event.currentTarget.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
@@ -138,6 +141,10 @@ export function PingCanvas({
   return (
     <div ref={containerRef} className="relative h-svh w-full overflow-hidden">
       <div className="absolute inset-0 z-0" onClick={handleCanvasTap} aria-hidden="true" />
+
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <Kittens taps={tapCount} />
+      </div>
 
       <div className="pointer-events-none absolute inset-0 z-10">
         <AnimatePresence>
@@ -181,7 +188,7 @@ export function PingCanvas({
       </div>
 
       {notice && (
-        <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center px-4">
+        <div className="pointer-events-none absolute inset-x-0 top-12 z-20 flex justify-center px-4">
           <span className="rounded-full bg-primary px-4 py-1.5 text-sm text-primary-foreground shadow-lg">
             {notice}
           </span>
