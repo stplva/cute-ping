@@ -56,10 +56,18 @@ export function CodeLobby({
                 <span className="text-3xl font-mono tracking-widest">{formatCode(code)}</span>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setCode(generateCode())}>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-transparent bg-white/60 shadow-sm backdrop-blur-xl hover:bg-white/80"
+                  onClick={() => setCode(generateCode())}
+                >
                   New code
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={copyCode}>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-transparent bg-white/60 shadow-sm backdrop-blur-xl hover:bg-white/80"
+                  onClick={copyCode}
+                >
                   {copied ? 'Copied!' : 'Copy'}
                 </Button>
               </div>

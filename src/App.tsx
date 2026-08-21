@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 
+import { AnimatedBackground } from '@/components/AnimatedBackground'
+
 import { getOrCreateProfile } from '@/lib/identity'
 import { CodeLobby } from '@/screens/CodeLobby'
 import { LandingScreen, type Mode } from '@/screens/LandingScreen'
@@ -25,8 +27,9 @@ function App() {
     setScreen('landing')
   }
 
+  let content
   if (screen === 'canvas') {
-    return (
+    content = (
       <PingCanvas
         channelName={channelName}
         nickname={nickname}
@@ -34,22 +37,25 @@ function App() {
         onLeave={leaveSession}
       />
     )
-  }
-
-  if (screen === 'code') {
-    return <CodeLobby onJoin={enterSession} onBack={() => setScreen('landing')} />
-  }
-
-  if (screen === 'nearby') {
-    return <NearbyLobby onJoin={enterSession} onBack={() => setScreen('landing')} />
+  } else if (screen === 'code') {
+    content = <CodeLobby onJoin={enterSession} onBack={() => setScreen('landing')} />
+  } else if (screen === 'nearby') {
+    content = <NearbyLobby onJoin={enterSession} onBack={() => setScreen('landing')} />
+  } else {
+    content = (
+      <LandingScreen
+        nickname={nickname}
+        onNicknameChange={setNickname}
+        onContinue={(mode: Mode) => setScreen(mode === 'code' ? 'code' : 'nearby')}
+      />
+    )
   }
 
   return (
-    <LandingScreen
-      nickname={nickname}
-      onNicknameChange={setNickname}
-      onContinue={(mode: Mode) => setScreen(mode === 'code' ? 'code' : 'nearby')}
-    />
+    <div className="relative min-h-svh">
+      <AnimatedBackground />
+      <div className="relative z-10">{content}</div>
+    </div>
   )
 }
 

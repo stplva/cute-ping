@@ -22,11 +22,11 @@ export function LandingScreen({
     <div className="flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl">cute-ping 🐱</CardTitle>
+          <CardTitle className="text-3xl">cute-ping 🎀</CardTitle>
           <CardDescription>Ping your friends with cute emojis, in real time.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <div className="flex flex-col gap-1">
             <label htmlFor="nickname" className="text-sm font-medium">
               Nickname (optional)
             </label>
@@ -34,7 +34,7 @@ export function LandingScreen({
               id="nickname"
               value={nickname}
               onChange={(e) => onNicknameChange(e.target.value)}
-              placeholder="e.g. sofi"
+              placeholder="your nickname"
               maxLength={24}
             />
           </div>

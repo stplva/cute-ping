@@ -23,13 +23,15 @@ export function PresenceIndicator({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <span className={`h-2.5 w-2.5 rounded-full ${STATUS_DOT[status]}`} aria-hidden="true" />
-        <span className="text-sm text-muted-foreground">{STATUS_LABELS[status]}</span>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-sm shadow-sm">
+          <span className={`h-2.5 w-2.5 rounded-full ${STATUS_DOT[status]}`} aria-hidden="true" />
+          {STATUS_LABELS[status]}
+        </span>
         {status === 'connected' && (
-          <Badge variant="secondary">
+          <span className="flex items-center rounded-full bg-white/85 px-3 py-1 text-sm shadow-sm">
             {others.length === 0 ? 'no one here yet' : `${others.length} here`}
-          </Badge>
+          </span>
         )}
       </div>
       {others.length > 0 && (

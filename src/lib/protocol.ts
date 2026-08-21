@@ -9,7 +9,7 @@ export interface PingEvent {
   ts: number
 }
 
-export const PING_EMOJIS = ['🐱', '💖', '⭐', '🐶', '🎀'] as const
+export const PING_EMOJIS = ['🌸', '💖', '⭐', '🐶', '🎀', '🍦'] as const
 export type PingEmoji = (typeof PING_EMOJIS)[number]
 
 export function isPingEmoji(value: unknown): value is PingEmoji {
