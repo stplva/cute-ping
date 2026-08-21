@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 
-import { cellForCoords, geoChannelName, RADIUS_LABELS, type RadiusOption } from '@/lib/geohash'
+import { cellForCoords, RADIUS_LABELS, type RadiusOption } from '@/lib/geohash'
+import { geoChannelName } from '@/lib/channel-name'
 
 interface Coords {
   lat: number

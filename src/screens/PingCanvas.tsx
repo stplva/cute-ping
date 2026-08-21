@@ -4,9 +4,12 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { PresenceIndicator } from '@/components/PresenceIndicator'
 
+import { parseChannelName } from '@/lib/channel-name'
 import { formatCode } from '@/lib/code'
 import { sanitizeNickname } from '@/lib/identity'
 import { PING_EMOJIS, type PingEmoji, type PingEvent } from '@/lib/protocol'
+import { glass } from '@/lib/styles'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useRealtimeSession } from '@/hooks/useRealtimeSession'
 
@@ -49,18 +52,6 @@ function FloatingEmoji({
   )
 }
 
-function roomInfo(channelName: string): { label: string; raw: string; isCode: boolean } {
-  if (channelName.startsWith('ping:code:')) {
-    const raw = channelName.slice('ping:code:'.length)
-    return { label: formatCode(raw), raw, isCode: true }
-  }
-  if (channelName.startsWith('ping:geo:')) {
-    const raw = channelName.slice('ping:geo:'.length)
-    return { label: raw, raw, isCode: false }
-  }
-  return { label: channelName, raw: channelName, isCode: false }
-}
-
 export function PingCanvas({
   channelName,
   nickname,
@@ -73,17 +64,18 @@ export function PingCanvas({
   onLeave: () => void
 }) {
   const { status, others, join, leave, sendPing, setPingHandler } = useRealtimeSession()
+  const { copied, copy } = useCopyToClipboard()
   const [selectedEmoji, setSelectedEmoji] = useState<PingEmoji>(PING_EMOJIS[0])
   const [floating, setFloating] = useState<FloatingItem[]>([])
   const [notice, setNotice] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
   const [hasTapped, setHasTapped] = useState(false)
   const reduced = usePrefersReducedMotion()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const idRef = useRef(0)
   const noticeTimerRef = useRef<number | null>(null)
 
-  const room = roomInfo(channelName)
+  const room = parseChannelName(channelName)
+  const roomLabel = room.kind === 'code' ? formatCode(room.raw) : room.raw
 
   const spawn = useCallback((emoji: string, x: number, y: number) => {
     const id = ++idRef.current
@@ -98,16 +90,6 @@ export function PingCanvas({
     if (noticeTimerRef.current !== null) window.clearTimeout(noticeTimerRef.current)
     noticeTimerRef.current = window.setTimeout(() => setNotice(null), 2000)
   }, [])
-
-  const copyRoom = async () => {
-    try {
-      await navigator.clipboard.writeText(room.raw)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 1500)
-    } catch {
-      // clipboard unavailable; the code is still visible
-    }
-  }
 
   const handleIncomingPing = useCallback(
     (ping: PingEvent) => {
@@ -175,14 +157,14 @@ export function PingCanvas({
         <div className="flex flex-col gap-2">
           <PresenceIndicator status={status} others={others} />
           <div className="flex items-center gap-1.5">
-            <span className="rounded-full bg-white/85 px-3 py-1 font-mono text-sm shadow-sm">
-              {room.isCode ? '🔗 ' : '📍 '}
-              {room.label}
+            <span className={`${glass} rounded-full px-3 py-1 font-mono text-sm`}>
+              {room.kind === 'code' ? '🔗 ' : '📍 '}
+              {roomLabel}
             </span>
             <button
               type="button"
-              onClick={copyRoom}
-              className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm transition-colors hover:bg-white"
+              onClick={() => void copy(room.raw)}
+              className={`${glass} rounded-full px-2.5 py-1 text-xs transition-colors hover:bg-white`}
             >
               {copied ? 'copied ✓' : 'copy'}
             </button>
@@ -191,7 +173,7 @@ export function PingCanvas({
         <Button
           variant="outline"
           size="sm"
-          className="border-transparent bg-white/85 shadow-sm transition-colors hover:bg-white"
+          className={`${glass} border-transparent transition-colors hover:bg-white`}
           onClick={onLeave}
         >
           Leave
@@ -224,7 +206,7 @@ export function PingCanvas({
             className={`flex h-12 w-12 items-center justify-center rounded-full text-2xl backdrop-blur-xl transition-transform ${
               selectedEmoji === emoji
                 ? 'scale-110 bg-white/90 ring-2 ring-white'
-                : 'bg-white/50 shadow-sm hover:bg-white/80'
+                : 'bg-white/50 hover:bg-white/80'
             }`}
           >
             {emoji}

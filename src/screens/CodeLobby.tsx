@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { codeChannelName, formatCode, generateCode, isValidCode, normalizeCode } from '@/lib/code'
+import { codeChannelName } from '@/lib/channel-name'
+import { formatCode, generateCode, isValidCode, normalizeCode } from '@/lib/code'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 
 export function CodeLobby({
   onJoin,
@@ -18,20 +20,10 @@ export function CodeLobby({
   const [tab, setTab] = useState<'create' | 'join'>('create')
   const [code, setCode] = useState(() => generateCode())
   const [input, setInput] = useState('')
-  const [copied, setCopied] = useState(false)
+  const { copied, copy } = useCopyToClipboard()
 
   const normalized = normalizeCode(input)
   const canJoin = tab === 'join' && isValidCode(normalized)
-
-  const copyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 1500)
-    } catch {
-      // clipboard unavailable; the code is still visible to share
-    }
-  }
 
   return (
     <div className="flex min-h-svh items-center justify-center p-4">
@@ -66,7 +58,7 @@ export function CodeLobby({
                 <Button
                   variant="outline"
                   className="flex-1 border-transparent bg-white/60 shadow-sm backdrop-blur-xl hover:bg-white/80"
-                  onClick={copyCode}
+                  onClick={() => void copy(code)}
                 >
                   {copied ? 'Copied!' : 'Copy'}
                 </Button>

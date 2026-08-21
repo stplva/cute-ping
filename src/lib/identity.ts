@@ -36,7 +36,7 @@ export function getOrCreateProfile(): Profile {
         }
       }
     } catch {
-      // fall through to creation below
+      // ignore
     }
   }
   if (memoryProfile) return memoryProfile
@@ -45,7 +45,7 @@ export function getOrCreateProfile(): Profile {
     try {
       storage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile))
     } catch {
-      // ignore write failures
+      // ignore
     }
   }
   memoryProfile = profile

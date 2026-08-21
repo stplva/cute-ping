@@ -15,7 +15,3 @@ export const RADIUS_PRECISION: Record<RadiusOption, number> = {
 export function cellForCoords(latitude: number, longitude: number, radius: RadiusOption): string {
   return encode(latitude, longitude, RADIUS_PRECISION[radius])
 }
-
-export function geoChannelName(cell: string): string {
-  return `ping:geo:${cell}`
-}

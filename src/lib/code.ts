@@ -29,7 +29,3 @@ export function formatCode(code: string): string {
   const upper = code.toUpperCase()
   return upper.length === CODE_LENGTH ? `${upper.slice(0, 4)} ${upper.slice(4)}` : upper
 }
-
-export function codeChannelName(code: string): string {
-  return `ping:code:${code}`
-}

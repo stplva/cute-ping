@@ -1,5 +1,5 @@
-export const PING_EVENT_VERSION = 1 as const
-export const PING_EVENT_TYPE = 'ping' as const
+const PING_EVENT_VERSION = 1 as const
+const PING_EVENT_TYPE = 'ping' as const
 
 export interface PingEvent {
   v: 1

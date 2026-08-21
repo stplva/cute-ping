@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 
 import type { PresenceMeta, RealtimeStatus } from '@/lib/channel'
+import { glass } from '@/lib/styles'
 
 const STATUS_LABELS: Record<RealtimeStatus, string> = {
   connecting: 'connecting…',
@@ -24,12 +25,12 @@ export function PresenceIndicator({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-sm shadow-sm">
+        <span className={`${glass} flex items-center gap-2 rounded-full px-3 py-1 text-sm`}>
           <span className={`h-2.5 w-2.5 rounded-full ${STATUS_DOT[status]}`} aria-hidden="true" />
           {STATUS_LABELS[status]}
         </span>
         {status === 'connected' && (
-          <span className="flex items-center rounded-full bg-white/85 px-3 py-1 text-sm shadow-sm">
+          <span className={`${glass} flex items-center rounded-full px-3 py-1 text-sm`}>
             {others.length === 0 ? 'no one here yet' : `${others.length} here`}
           </span>
         )}
