@@ -42,3 +42,11 @@
 - [ ] 7.1 Push the repo to `origin` (stplva/cute-ping) and verify the remote has the latest commit
 - [ ] 7.2 Connect the repo in Vercel and add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (per `.env.example`) for Production/Preview/Development; verify the env vars are set in the dashboard
 - [ ] 7.3 Trigger a production deploy and verify the live URL loads and a two-browser ping round-trip works on the deployed app
+
+## 8. Manual Review
+
+- [ ] 8.1 Visual design review (warm palette, glass cards, animated background and cats) on desktop and mobile viewports
+- [ ] 8.2 Two-browser ping round-trip in code mode (tap on A animates on B, presence count updates)
+- [ ] 8.3 Nearby/radius matching between two clients in the same area (and location-denied message)
+- [ ] 8.4 Copy button, room-code display, and connection-status pills behave and are clickable
+- [ ] 8.5 Reduced-motion fallback (OS "reduce motion" enabled) renders static pings
